@@ -4,11 +4,14 @@
  */
 package com.mycompany.myapp.services;
 
+import com.codename1.components.InfiniteProgress;
 import com.codename1.io.CharArrayReader;
 import com.codename1.io.ConnectionRequest;
 import com.codename1.io.JSONParser;
+import com.codename1.io.MultipartRequest;
 import com.codename1.io.NetworkEvent;
 import com.codename1.io.NetworkManager;
+import com.codename1.ui.Dialog;
 import com.codename1.ui.events.ActionListener;
 import com.mycompany.myapp.entities.product;
 import com.mycompany.myapp.entities.productCategory;
@@ -17,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  *
@@ -212,4 +216,35 @@ public class productService {
         NetworkManager.getInstance().addToQueueAndWait(req);
         return result;
     }
+
+    protected String genString() {
+        String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        StringBuilder salt = new StringBuilder();
+        Random rnd = new Random();
+        while (salt.length() < 18) { // length of the random string.
+            int index = (int) (rnd.nextFloat() * SALTCHARS.length());
+            salt.append(SALTCHARS.charAt(index));
+        }
+        String saltStr = salt.toString();
+        return saltStr;
+    }
+
+    public String uploadPhoto(String path) {
+        String photoName = genString() + ".jpg";
+        try {
+            MultipartRequest cr = new MultipartRequest();
+            cr.setUrl("http://localhost/Calometre-main/saveimageProduct.php");
+            cr.setPost(true);
+            String mime = "image/jpeg";
+            cr.addData("myFile", path, mime);
+            cr.setFilename("myFile", photoName);//any unique name you want
+            InfiniteProgress prog = new InfiniteProgress();
+            Dialog dlg = prog.showInifiniteBlocking();
+            cr.setDisposeOnCompletion(dlg);
+            NetworkManager.getInstance().addToQueueAndWait(cr);
+        } catch (IOException ex) {
+        }
+        return photoName;
+    }
+
 }

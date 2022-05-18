@@ -8,10 +8,14 @@ import com.codename1.components.InfiniteProgress;
 import com.codename1.ui.Button;
 import com.codename1.ui.Container;
 import com.codename1.ui.Dialog;
+import com.codename1.ui.Display;
 import com.codename1.ui.FontImage;
+import com.codename1.ui.Image;
 import com.codename1.ui.Label;
 import com.codename1.ui.TextField;
 import com.codename1.ui.Toolbar;
+import com.codename1.ui.events.ActionEvent;
+import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.FlowLayout;
@@ -19,12 +23,15 @@ import com.codename1.ui.plaf.Border;
 import com.codename1.ui.util.Resources;
 import com.mycompany.myapp.entities.product;
 import com.mycompany.myapp.services.productService;
+import java.io.IOException;
 
 /**
  *
  * @author louay
  */
 public class EditProduct extends SideMenuBaseForm {
+
+    String productimage;
 
     public EditProduct(Resources res, product publication) {
         super(BoxLayout.y());
@@ -80,13 +87,36 @@ public class EditProduct extends SideMenuBaseForm {
         quantity.getStyle().setPadding(3, 3, 0, 0);
         quantity.getStyle().setUnderline(false);
 
-        TextField image = new TextField(publication.getImage(), "Image ...");
-        image.getStyle().setBgColor(0x000000);
-        image.getStyle().setFgColor(0x000000);
-        image.getStyle().setBorder(Border.createRoundBorder(50, 50));
-        image.getStyle().setElevation(1);
-        image.getStyle().setPadding(3, 3, 0, 0);
-        image.getStyle().setUnderline(false);
+        Button photobutton = new Button("Upload image");
+        photobutton.getStyle().setBgColor(0xffffff);
+        photobutton.getStyle().setFgColor(0x0583D2);
+        photobutton.getStyle().setBgTransparency(255);
+        photobutton.getStyle().setBorder(Border.createRoundBorder(30, 30));
+        photobutton.getStyle().setMargin(13, 13, 80, 80);
+        photobutton.getStyle().setPadding(3, 3, 0, 0);
+        photobutton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                Display.getInstance().openImageGallery(new ActionListener() {
+                    public void actionPerformed(ActionEvent ev) {
+                        String i = (String) ev.getSource();
+                        if (i != null) {
+                            try {
+
+                                Image img = Image.createImage(i);
+                                img = img.scaled(Math.round(Display.getInstance().getDisplayWidth() - 40), Math.round(Display.getInstance().getDisplayHeight() - 40));
+                            } catch (IOException ex) {
+                            }
+                        }
+
+                        productimage = productService.getInstance().uploadPhoto(i);
+
+                    }
+                });
+            }
+
+        });
 
         Button addPub = new Button("Edit");
         addPub.getStyle().setBgColor(0xffffff);
@@ -99,7 +129,7 @@ public class EditProduct extends SideMenuBaseForm {
         Container pub = BoxLayout.encloseY(
                 BorderLayout.center(
                         BoxLayout.encloseY(
-                                titre, description, price, quantity, image, addPub
+                                titre, description, price, quantity, photobutton, addPub
                         )
                 )
         );
@@ -116,7 +146,7 @@ public class EditProduct extends SideMenuBaseForm {
 
                 publication.setName(titre.getText());
                 publication.setDescription(description.getText());
-                publication.setImage(image.getText());
+                publication.setImage(productimage);
                 publication.setPrice(price.getText());
                 publication.setQuantity(quantity.getText());
 

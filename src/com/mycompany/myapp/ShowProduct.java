@@ -4,7 +4,6 @@
  */
 package com.mycompany.myapp;
 
-import com.codename1.components.ImageViewer;
 import com.codename1.ui.Button;
 import com.codename1.ui.Container;
 import com.codename1.ui.Dialog;
@@ -12,20 +11,18 @@ import com.codename1.ui.EncodedImage;
 import com.codename1.ui.FontImage;
 import com.codename1.ui.Image;
 import com.codename1.ui.Label;
-import com.codename1.ui.TextField;
 import com.codename1.ui.Toolbar;
 import com.codename1.ui.URLImage;
-import com.codename1.ui.geom.Dimension;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.FlowLayout;
 import com.codename1.ui.layouts.GridLayout;
 import com.codename1.ui.plaf.Border;
 import com.codename1.ui.util.Resources;
-import com.mycompany.myapp.entities.exercice;
 import com.mycompany.myapp.entities.product;
 import com.mycompany.myapp.services.exerciceService;
 import com.mycompany.myapp.services.productService;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -33,6 +30,8 @@ import java.util.ArrayList;
  * @author louay
  */
 public class ShowProduct extends SideMenuBaseForm {
+
+    EncodedImage enc;
 
     public ShowProduct(Resources res) {
         super(BoxLayout.y());
@@ -88,6 +87,12 @@ public class ShowProduct extends SideMenuBaseForm {
                 }
             });
 //String username = user.getUsername();
+            try {
+                enc = EncodedImage.create("/giphy.gif");
+            } catch (IOException ex) {
+            }
+            Image image = URLImage.createToStorage(enc, pubs.getImage(), "http://127.0.0.1/Calometre-main/public/uploads/products/" + pubs.getImage());
+            System.out.println(pubs.getImage());
             Label nom = new Label("Nom: " + pubs.getName());
             nom.getAllStyles().setFgColor(0xffffff);
 
@@ -122,6 +127,7 @@ public class ShowProduct extends SideMenuBaseForm {
             pub.getStyle().setPadding(7, 7, 7, 7);
             pub.getStyle().setMargin(20, 20, 30, 30);
             pub.getStyle().setBorder(Border.createRoundBorder(50, 50));
+            add(image);
 
             add(pub);
         }
